@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:/Prem/Projects/SQL/Finished/Kickstarter Projects.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="1755"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="4,10:mainksprojects"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1">-- 1. List the names and data types for each table in the database.
+select *
+from ksprojects;
+
+
+-- 2. Pull the relevant columns from the ksprojects table that will allow us to assess a project's result based on its main category, amount of money set as a goal, number of backers, and amount of money pledged. Return just the first 10 rows.
+-- colunms main category, goal, backers, pledged
+-- Limit 10 rows
+
+SELECT  main_category,
+        goal,
+        backers,
+        pledged
+FROM ksprojects
+GROUP BY main_category
+ORDER BY goal DESC
+LIMIT 10;
+
+-- 3. Repeat your query from the previous screen, but this time only keep the records where the project state is either 'failed', 'canceled', or 'suspended'.
+SELECT main_category, goal, backers, pledged
+  FROM ksprojects
+ WHERE state IN ('failed', 'canceled', 'suspended')
+  LIMIT 10;
+  
+-- 4. Expand your query from the previous screen to find which of these projects had at least 100 backers and at least $20,000 pledged.
+SELECT main_category, backers, pledged, goal
+ FROM ksprojects
+WHERE state IN ('failed', 'canceled', 'suspended')
+    AND backers &gt;= 100
+    AND pledged &gt;= 20000
+LIMIT 10;
+
+-- 5. Continue building on your query from the previous screen. This time, you'll sort the results by two fields:
+-- Main category sorted in ascending order.
+-- A calculated field called pct_pledged, which divides pledged by goal. Sort this field in descending order. (Add pct_pledged to the SELECT clause, too.)
+-- modify your query so that only projects in a failed state are returned.
+SELECT  main_category, backers, pledged, goal,
+        pledged/goal AS pct_pledged
+  FROM ksprojects
+ WHERE state IN ('failed')
+   AND backers &gt;= 100 AND pledged &gt;= 20000
+ ORDER BY main_category, pct_pledged DESC
+ LIMIT 10;
+ 
+-- 6. Create a field funding_status that applies the following logic based on the percentage of amount pledged to campaign goal:
+-- If the percentage pledged is greater than or equal to 1, then the project is &quot;Fully funded&quot;.
+-- If the percentage pledged is between 75% and 100%, then the project is &quot;Nearly funded&quot;.
+-- If the percentage pledged is less than 75%, then the project is &quot;Not nearly funded&quot;.
+SELECT main_category, backers, pledged, goal,
+       pledged / goal AS pct_pledged,
+       CASE
+           WHEN (pledged / goal) &gt;= 1 THEN &quot;Fully funded&quot;
+           WHEN (pledged / goal) BETWEEN 0.75 AND 1 THEN &quot;Nearly funded&quot;
+           WHEN (pledged / goal) &lt; 0.75 THEN &quot;Not nearly funded&quot;
+           ELSE &quot;Don't have any backers or funding&quot;
+       END AS funding_status
+FROM ksprojects
+WHERE state IN ('failed')
+  AND backers &gt;= 100
+  AND pledged &gt;= 20000
+ORDER BY main_category, pct_pledged DESC
+LIMIT 10;</sql><current_tab id="0"/></tab_sql></sqlb_project>
